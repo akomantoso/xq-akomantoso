@@ -1,15 +1,18 @@
-xquery version "3.0";
+xquery version "3.1";
 
 (:~
 :
 : XQuery API to access Akoma Ntoso documents
-: Written for AkomaNtoso 3.0 CSD 13
-: Provided under the Apache License 2.0
+: This library provides "API" shorthands to access
+: parts of Akoma Ntoso documents. Prevents repetition
+: of long XPaths, and provides a little bit of abstraction
+:
+: Written for AkomaNtoso 3.0 / NS:http://docs.oasis-open.org/legaldocml/ns/akn/3.0
 : @author Ashok Hariharan
-: @version 1.0
+: @version 1.2
 :)
 module namespace andoc="http://exist-db.org/xquery/apps/akomantoso30";
-declare namespace an="http://docs.oasis-open.org/legaldocml/ns/akn/3.0/CSD13";
+declare namespace an="http://docs.oasis-open.org/legaldocml/ns/akn/3.0";
 
 declare function andoc:root($doc as document-node()) {
     let $root := $doc/an:akomaNtoso
@@ -175,7 +178,7 @@ declare function andoc:docNumber($doc as document-node()){
 };
 
 (:
-Returns first matching docType element
+    Returns first matching docType element
 :)
 declare function andoc:docType($doc as document-node()) {
     let $docType := andoc:root($doc)//an:docType
@@ -183,7 +186,7 @@ declare function andoc:docType($doc as document-node()) {
 };
 
 (:
-Returns first matching docType element with an expression filter
+    Returns first matching docType element with an expression filter
 :)
 declare function andoc:docType($doc as document-node(), $exp-filter as xs:string) {
     let $docType := andoc:root($doc)//an:docType[@eId eq $exp-filter]
@@ -197,9 +200,14 @@ declare function andoc:docType($doc as document-node(), $exp-filter as xs:string
 
 
 (:~
-:Finds a document matching a particular criteria
-:Takes an input as sequence of document-node 
-:in eXist a collection is a sequence of document nodes
+    Finds a document expression matching a particular criteria
+    Takes an input as sequence of document-node objects
+    in eXist a collection is a sequence of document nodes. This function
+    filters the collection on Expression URI and Language
+    
+    @coll collection of document nodes to search within
+    @uri uri as string to look for in FRBRthis/@this
+    @lang language code as string to look for in FRBRlanguage/@language
 :)
 declare function andoc:find-document(
     $coll as document-node()*, 
@@ -220,6 +228,18 @@ declare function andoc:find-document(
      return $doc
 };
 
+(:~
+    Finds a document expression matching a particular criteria
+    Takes an input as sequence of document-node objects
+    in eXist a collection is a sequence of document nodes. This function
+    filters the document on Expression URI, Language, Doc Type and Doc Name
+    
+    @coll collection of document nodes to search within
+    @uri uri as string to look for in FRBRthis/@this
+    @lang language code as string to look for in FRBRlanguage/@language
+    @doctype is the Akoma Ntoso document type name
+    @docname is the value of the @name attribute set in the Akoma Ntoso docType element
+:)
 declare function andoc:find-document(
     $coll as document-node()*, 
     $uri as xs:string, 
